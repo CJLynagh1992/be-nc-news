@@ -1,5 +1,4 @@
 exports.formatDate = list => {
-  if (list.length === 0) return [];
   return list.map(time => {
     time.created_at = new Date(time.created_at);
     return time;
@@ -14,14 +13,12 @@ exports.makeRefObj = list => {
 };
 
 exports.formatComments = (comments, articleRef) => {
-  return comments.map(commentsCheck => {
-    if (!articleRef) {
-      return commentsCheck;
-    } else {
-      const key = commentsCheck.created_by;
-      commentsCheck.author = articleRef[key];
-      delete commentsCheck.created_by;
-      return commentsCheck;
-    }
+  return comments.map(comment => {
+    comment.author = comment.created_by;
+    delete comment.created_by;
+    comment.article_id = articleRef[comment.belongs_to];
+    delete comment.belongs_to;
+    comment.created_at = new Date(comment.created_at);
+    return comment;
   });
 };

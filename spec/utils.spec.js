@@ -82,7 +82,7 @@ describe('formatDate', () => {
   });
 });
 
-describe('makeRefObj', list => {
+describe('makeRefObj', () => {
   it('returns an empty object when invoked with an empty array', () => {
     const list = [];
     const actual = makeRefObj(list);
@@ -103,17 +103,7 @@ describe('makeRefObj', list => {
   });
 });
 
-// This utility function should be able to take an array of comment objects (comments) and a reference object, and return a new array of formatted comments.
-
-// Each formatted comment must have:
-
-// Its created_by property renamed to an author key
-// Its belongs_to property renamed to an article_id key
-// The value of the new article_id key must be the id corresponding to the original title value provided
-// Its created_at value converted into a javascript date object
-// The rest of the comment's properties must be maintained
-
-describe('formatComments', (comments, articleRef) => {
+describe('formatComments', () => {
   it('returns a new empty array, when passed an empty array', () => {
     const comments = [];
     const articleRef = {};
@@ -121,11 +111,18 @@ describe('formatComments', (comments, articleRef) => {
     const expected = [];
     expect(actual).to.eql(expected);
   });
-  it('takes an array with an object containing a created_by property and returns a new array with this property renamed to an author key', () => {
-    const comments = [{ created_by: 'tickle122' }];
-    const articleRef = { author: 'tickle122' };
+  it('takes an array with an object containing a created_by and a belongs_to property and returns a new array with these renamed to author and article_id respectively', () => {
+    const comments = [{ created_by: 'tickle122', belongs_to: 'World Cup', created_at: 1468087638932 }];
+    const articleRef = { 'World Cup': 1 };
     const actual = formatComments(comments, articleRef);
-    const expected = [{ author: 'tickle122' }];
+    const expected = [{ author: 'tickle122', article_id: 1, created_at: new Date('2016-07-09T18:07:18.932Z') }];
+    expect(actual).to.eql(expected);
+  });
+  it('takes an array with an object containing a created_by and a belongs_to property and returns a new array with these renamed to author and article_id respectively', () => {
+    const comments = [{ body: 'Itaque quisquam', created_by: 'tickle122', belongs_to: 'World Cup', votes: -1, created_at: 1468087638932 }, { body: 'Nobis', belongs_to: 'Making sense of Redux', created_by: 'grumpy19', votes: 7, created_at: 1478813209256 }];
+    const articleRef = { 'World Cup': 1, 'Making sense of Redux': 2 };
+    const actual = formatComments(comments, articleRef);
+    const expected = [{ body: 'Itaque quisquam', author: 'tickle122', article_id: 1, votes: -1, created_at: new Date('2016-07-09T18:07:18.932Z') }, { body: 'Nobis', article_id: 2, author: 'grumpy19', votes: 7, created_at: new Date('2016-11-10T21:26:49.256Z') }];
     expect(actual).to.eql(expected);
   });
 });
