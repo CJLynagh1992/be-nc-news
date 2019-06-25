@@ -68,6 +68,22 @@ describe('/', () => {
             expect(res.body.msg).to.equal('The article_id is out of range');
           });
       });
+      it('PATCH for updating votes property in article passed: status 201 and updates the votes property using the object passed and the updated article', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 1 })
+          .expect(201)
+          .then(res => {
+            expect(res.body.article).to.eql({
+              title: 'Living in the shadow of a great man',
+              topic: 'mitch',
+              author: 'butter_bridge',
+              body: 'I find this existence challenging',
+              created_at: 1542284514171,
+              votes: 101
+            });
+          });
+      });
     });
   });
 });
