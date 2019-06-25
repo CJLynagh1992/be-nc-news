@@ -49,7 +49,7 @@ describe('/', () => {
           .expect(200)
           .then(res => {
             expect(res.body.article.article_id).to.equal(1);
-            expect(res.body.article).to.contain.keys('article_id', 'title', 'body', 'votes', 'topic', 'author', 'created_at');
+            expect(res.body.article).to.contain.keys('article_id', 'title', 'body', 'votes', 'topic', 'author', 'created_at', 'comment_count');
           });
       });
       it('GET for an non-existant article_id: status 404 and an error message stating no article has been found by that article_id', () => {
