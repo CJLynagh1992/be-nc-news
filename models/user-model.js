@@ -2,7 +2,7 @@ const connection = require('../db/connection');
 
 exports.fetchUser = username => {
   return connection
-    .select('*')
+    .first('*')
     .from('users')
     .where('username', username);
 };

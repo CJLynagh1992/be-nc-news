@@ -11,36 +11,63 @@ const connection = require('../db/connection');
 describe('/', () => {
   after(() => connection.destroy());
   beforeEach(() => connection.seed.run());
-});
-describe('/api', () => {
-  describe('/topics', () => {
-    it('GET status:200 and returns an array of topic objects, each topic having the correct properties and the correct length', () => {
-      return request(app)
-        .get('/api/topics')
-        .expect(200)
-        .then(res => {
-          expect(res.body.topics[0]).to.contain.keys('description', 'slug');
-          expect(res.body.topics.length).to.equal(3);
-        });
+  describe('/api', () => {
+    describe('/topics', () => {
+      it('GET status:200 and returns an array of topic objects, each topic having the correct properties and the correct length', () => {
+        return request(app)
+          .get('/api/topics')
+          .expect(200)
+          .then(res => {
+            expect(res.body.topics[0]).to.contain.keys('description', 'slug');
+            expect(res.body.topics.length).to.equal(3);
+          });
+      });
     });
-  });
-  describe('/users/:username', () => {
-    it('GET for a valid username: status 200 and returns an object of the user passed in the url along with the correct properties present', () => {
-      return request(app)
-        .get(`/api/users/butter_bridge`)
-        .expect(200)
-        .then(res => {
-          expect(res.body.user[0].username).to.equal('butter_bridge');
-          expect(res.body.user[0]).to.contain.keys('username', 'avatar_url', 'name');
-        });
+    describe('/users/:username', () => {
+      it('GET for a valid username: status 200 and returns an object of the user passed in the url along with the correct properties present', () => {
+        return request(app)
+          .get(`/api/users/butter_bridge`)
+          .expect(200)
+          .then(res => {
+            expect(res.body.user.username).to.equal('butter_bridge');
+            expect(res.body.user).to.contain.keys('username', 'avatar_url', 'name');
+          });
+      });
+      it('GET for an non-existant username: status 400 and an error message stating no user has been found by that username', () => {
+        return request(app)
+          .get('/api/users/not-Valid-Username')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('No user found for username: not-Valid-Username');
+          });
+      });
     });
-    it('GET for an invalid username: status 404 and an error message stating no user has been found by that username', () => {
-      return request(app)
-        .get('/api/users/notValidUsername')
-        .expect(404)
-        .then(res => {
-          expect(res.body.msg).to.equal('No user found for username: notValidUsername');
-        });
+    describe('/articles/:article_id', () => {
+      it('GET for an article request: status 200 and returns an article object with all of the required properties', () => {
+        return request(app)
+          .get(`/api/articles/1`)
+          .expect(200)
+          .then(res => {
+            expect(res.body.article.article_id).to.equal(1);
+            expect(res.body.article).to.contain.keys('article_id', 'title', 'body', 'votes', 'topic', 'author', 'created_at');
+          });
+      });
+      it('GET for an non-existant article_id: status 404 and an error message stating no article has been found by that article_id', () => {
+        return request(app)
+          .get(`/api/articles/231242`)
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('No article found for article_id: 231242');
+          });
+      });
+      it('GET for an invalid article_id: status 400 and an error message', () => {
+        return request(app)
+          .get(`/api/articles/2354975394753409571242`)
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('The article_id is out of range');
+          });
+      });
     });
   });
 });

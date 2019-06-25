@@ -10,9 +10,14 @@ app.all('/*', (req, res, next) => {
   res.status(404).send({ msg: 'Route not found' });
 });
 
-// handleSQLErrors
 app.use((err, req, res, next) => {
-  res.status(404).send({ msg: 'No user found for username: notValidUsername' });
+  if (err.status) res.status(err.status).send({ msg: err.msg });
+  else next(err);
+});
+
+app.use((err, req, res, next) => {
+  const psqlCodes = ['22003'];
+  if (psqlCodes.includes(err.code)) res.status(400).send({ msg: 'The article_id is out of range' });
 });
 
 module.exports = app;
