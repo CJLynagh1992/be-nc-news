@@ -102,6 +102,18 @@ describe('/', () => {
             expect(res.body.article).to.contain.keys('title', 'topic', 'author', 'body', 'created_at', 'votes');
           });
       });
+      it('INVALID METHOD status: 405', () => {
+        const invalidMethods = ['post', 'put', 'delete'];
+        const methodPromises = invalidMethods.map(method => {
+          return request(app)
+            [method]('/api/articles/:article_id')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('method not allowed');
+            });
+        });
+        return Promise.all(methodPromises);
+      });
     });
     describe('/articles/:article_id/comments', () => {
       it('POST for adding a new comment to a specific article: status code 201 and adds a new comment to the article specified', () => {
