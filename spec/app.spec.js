@@ -22,6 +22,14 @@ describe('/', () => {
             expect(res.body.topics.length).to.equal(3);
           });
       });
+      it('GET for an invalid route: status 404 and return a message that the route has not been found', () => {
+        return request(app)
+          .get('/api/tops')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('Route not found');
+          });
+      });
       it('INVALID METHOD status: 405', () => {
         const invalidMethods = ['patch', 'post', 'put', 'delete'];
         const methodPromises = invalidMethods.map(method => {
@@ -51,6 +59,14 @@ describe('/', () => {
           .expect(404)
           .then(res => {
             expect(res.body.msg).to.equal('No user found for username: not-Valid-Username');
+          });
+      });
+      it('GET for an invalid route: status 404 and return a message that the route has not been found', () => {
+        return request(app)
+          .get('/api/user')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('Route not found');
           });
       });
       it('INVALID METHOD status: 405', () => {
@@ -100,6 +116,14 @@ describe('/', () => {
           .then(res => {
             expect(res.body.article.votes).to.equal(101);
             expect(res.body.article).to.contain.keys('title', 'topic', 'author', 'body', 'created_at', 'votes');
+          });
+      });
+      it('GET for an invalid route: status 404 and return a message that the route has not been found', () => {
+        return request(app)
+          .get('/api/article/2')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('Route not found');
           });
       });
       it('INVALID METHOD status: 405', () => {
@@ -155,6 +179,14 @@ describe('/', () => {
           .expect(200)
           .then(res => {
             expect(res.body.comments).to.be.sortedBy('comment_id', { ascending: true });
+          });
+      });
+      it('GET for an invalid route: status 404 and return a message that the route has not been found', () => {
+        return request(app)
+          .get('/api/articles/1/comms')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('Route not found');
           });
       });
       it('INVALID METHOD status: 405', () => {
