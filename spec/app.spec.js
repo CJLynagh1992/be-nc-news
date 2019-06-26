@@ -125,6 +125,18 @@ describe('/', () => {
             expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
           });
       });
+      it('INVALID METHOD status: 405', () => {
+        const invalidMethods = ['delete'];
+        const methodPromises = invalidMethods.map(method => {
+          return request(app)
+            [method]('/api/articles/:article_id/comments')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('method not allowed');
+            });
+        });
+        return Promise.all(methodPromises);
+      });
     });
   });
 });
