@@ -108,6 +108,14 @@ describe('/', () => {
             expect(res.body.msg).to.equal('The article_id is out of range');
           });
       });
+      it('GET for an invalid article_id: status 400 and an error message', () => {
+        return request(app)
+          .get(`/api/articles/notanumber`)
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('the given syntax input is not valid');
+          });
+      });
       it('PATCH for updating votes property in article passed: status 201 and updates the votes property using the object passed and the updated article', () => {
         return request(app)
           .patch('/api/articles/1')
@@ -118,12 +126,40 @@ describe('/', () => {
             expect(res.body.article).to.contain.keys('title', 'topic', 'author', 'body', 'created_at', 'votes');
           });
       });
+      it('PATCH for updating votes property in article passed: status 400 and returns an arrow stating that inccrement value not passed', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({})
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('increment value has not been given');
+          });
+      });
+      it('PATCH for updating votes property in article passed: status 400 and returns an error ', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 'cat' })
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('the given syntax input is not valid');
+          });
+      });
       it('GET for an invalid route: status 404 and return a message that the route has not been found', () => {
         return request(app)
           .get('/api/article/2')
           .expect(404)
           .then(res => {
             expect(res.body.msg).to.equal('Route not found');
+          });
+      });
+      it('PATCH for updating votes property in article passed: status 200 returns the votes modified even if we pass in an extra property on the request body ', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 1, name: 'mitch' })
+          .expect(201)
+          .then(res => {
+            expect(res.body.article.votes).to.equal(101);
+            expect(res.body.article).to.contain.keys('title', 'topic', 'author', 'body', 'created_at', 'votes');
           });
       });
       it('INVALID METHOD status: 405', () => {
@@ -204,4 +240,3 @@ describe('/', () => {
     });
   });
 });
-// const send405 = () => {

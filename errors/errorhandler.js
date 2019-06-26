@@ -5,7 +5,9 @@ exports.handleCustomErrors = (err, req, res, next) => {
 
 exports.handlePsqlErrors = (err, req, res, next) => {
   const psqlCodes = ['22003'];
+  const psqlCodes1 = ['22P02'];
   if (psqlCodes.includes(err.code)) res.status(400).send({ msg: 'The article_id is out of range' });
+  if (psqlCodes1.includes(err.code)) res.status(400).send({ msg: 'the given syntax input is not valid' });
 };
 
 exports.handleServerErrors = (err, req, res, next) => {

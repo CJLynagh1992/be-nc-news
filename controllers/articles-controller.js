@@ -18,6 +18,12 @@ exports.sendArticle = (req, res, next) => {
 exports.updateArticleVotes = (req, res, next) => {
   const desiredUpdateTotal = req.body.inc_votes;
   const { article_id } = req.params;
+  if (!desiredUpdateTotal) {
+    return Promise.reject({
+      status: 400,
+      msg: 'increment value has not been given'
+    }).catch(err => next(err));
+  }
   updatedVotes(article_id, desiredUpdateTotal)
     .then(article => {
       res.status(201).send({ article });
