@@ -1,12 +1,12 @@
 process.env.NODE_ENV = 'test';
 const app = require('../app');
 const request = require('supertest');
-// const chai = require('chai');
-// const chaiSorted = require('chai-sorted');
+const chai = require('chai');
+const chaiSorted = require('chai-sorted');
 const { expect } = require('chai');
 const connection = require('../db/connection');
 
-// chai.use(chaiSorted);
+chai.use(chaiSorted);
 
 describe('/', () => {
   after(() => connection.destroy());
@@ -125,8 +125,40 @@ describe('/', () => {
             expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
           });
       });
+      it('GET for getting an array of comments for a given article_id: status code 200 and defaults to descending order of created_by when not passed a sort_by query or order query', () => {
+        return request(app)
+          .get('/api/articles/1/comments')
+          .expect(200)
+          .then(res => {
+            expect(res.body.comments).to.be.sortedBy('created_at', { descending: true });
+          });
+      });
+      it('GET for getting an array of comments for a given article_id: status code 200 and will default to created_by when not passed a sort_by query but sorts ascending if passed order query ascending', () => {
+        return request(app)
+          .get('/api/articles/1/comments?order=asc')
+          .expect(200)
+          .then(res => {
+            expect(res.body.comments).to.be.sortedBy('created_at', { ascending: true });
+          });
+      });
+      it('GET for getting an array of comments for a given article_id: status code 200 and will sorted by passed property is valid and order descending by dafult if not passed an order', () => {
+        return request(app)
+          .get('/api/articles/1/comments?sort_by=comment_id')
+          .expect(200)
+          .then(res => {
+            expect(res.body.comments).to.be.sortedBy('comment_id', { descending: true });
+          });
+      });
+      it('GET for getting an array of comments for a given article_id: status code 200 and will sorted by passed property is valid and order ascending if passed order query ascending', () => {
+        return request(app)
+          .get('/api/articles/1/comments?sort_by=comment_id&order=asc')
+          .expect(200)
+          .then(res => {
+            expect(res.body.comments).to.be.sortedBy('comment_id', { ascending: true });
+          });
+      });
       it('INVALID METHOD status: 405', () => {
-        const invalidMethods = ['delete'];
+        const invalidMethods = ['patch', 'put', 'delete'];
         const methodPromises = invalidMethods.map(method => {
           return request(app)
             [method]('/api/articles/:article_id/comments')

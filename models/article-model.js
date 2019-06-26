@@ -27,3 +27,11 @@ exports.addComment = newComment => {
     .returning('*')
     .then(([comment]) => comment);
 };
+
+exports.fetchComments = (article_id, { sort_by, order }) => {
+  return connection
+    .select('*')
+    .from('comments')
+    .where('comments.article_id', '=', article_id)
+    .orderBy(sort_by || 'created_at', order || 'desc');
+};

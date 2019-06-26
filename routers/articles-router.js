@@ -1,5 +1,5 @@
 const articlesRouter = require('express').Router();
-const { sendArticle, updateArticleVotes, postComment } = require('../controllers/articles-controller');
+const { sendArticle, updateArticleVotes, postComment, sendComments } = require('../controllers/articles-controller');
 const { methodNotAllowed } = require('../errors/errorhandler');
 
 articlesRouter
@@ -11,6 +11,7 @@ articlesRouter
 articlesRouter
   .route('/:article_id/comments')
   .post(postComment)
+  .get(sendComments)
   .all(methodNotAllowed);
 
 module.exports = articlesRouter;
