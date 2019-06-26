@@ -5,9 +5,7 @@ exports.fetchArticle = article_id => {
     .first('articles.*')
     .from('articles')
     .join('comments', 'articles.article_id', '=', 'comments.article_id')
-    .where({
-      'articles.article_id': article_id
-    })
+    .where('articles.article_id', '=', article_id)
     .count('comments.comment_id as comment_count')
     .groupBy('articles.article_id', 'comments.article_id');
 };
@@ -20,4 +18,12 @@ exports.updatedVotes = (article_id, desiredUpdateTotal) => {
     .increment({ votes: desiredUpdateTotal })
     .returning('*')
     .then(([article]) => article);
+};
+
+exports.addComment = newComment => {
+  return connection
+    .into('comments')
+    .insert(newComment)
+    .returning('*')
+    .then(([comment]) => comment);
 };

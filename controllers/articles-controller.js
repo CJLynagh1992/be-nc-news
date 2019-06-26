@@ -1,4 +1,4 @@
-const { fetchArticle, updatedVotes } = require('../models/article-model');
+const { fetchArticle, updatedVotes, addComment } = require('../models/article-model');
 
 exports.sendArticle = (req, res, next) => {
   const { article_id } = req.params;
@@ -21,6 +21,20 @@ exports.updateArticleVotes = (req, res, next) => {
   updatedVotes(article_id, desiredUpdateTotal)
     .then(article => {
       res.status(201).send({ article });
+    })
+    .catch(err => next(err));
+};
+
+exports.postComment = (req, res, next) => {
+  const commentToAdd = req.body;
+  const { article_id } = req.params;
+  const { username, ...restOfComment } = commentToAdd;
+  const newComment = { ...restOfComment };
+  newComment.author = username;
+  newComment.article_id = article_id;
+  addComment(newComment)
+    .then(comment => {
+      res.status(201).send({ comment });
     })
     .catch(err => next(err));
 };

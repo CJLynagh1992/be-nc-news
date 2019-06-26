@@ -22,6 +22,18 @@ describe('/', () => {
             expect(res.body.topics.length).to.equal(3);
           });
       });
+      it('INVALID METHOD status: 405', () => {
+        const invalidMethods = ['patch', 'post', 'put', 'delete'];
+        const methodPromises = invalidMethods.map(method => {
+          return request(app)
+            [method]('/api/topics')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('method not allowed');
+            });
+        });
+        return Promise.all(methodPromises);
+      });
     });
     describe('/users/:username', () => {
       it('GET for a valid username: status 200 and returns an object of the user passed in the url along with the correct properties present', () => {
@@ -40,6 +52,18 @@ describe('/', () => {
           .then(res => {
             expect(res.body.msg).to.equal('No user found for username: not-Valid-Username');
           });
+      });
+      it('INVALID METHOD status: 405', () => {
+        const invalidMethods = ['patch', 'post', 'put', 'delete'];
+        const methodPromises = invalidMethods.map(method => {
+          return request(app)
+            [method]('/api/users/:username')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('method not allowed');
+            });
+        });
+        return Promise.all(methodPromises);
       });
     });
     describe('/articles/:article_id', () => {
@@ -79,5 +103,17 @@ describe('/', () => {
           });
       });
     });
+    describe('/articles/:article_id/comments', () => {
+      it('POST for adding a new comment to a specific article: status code 201 and adds a new comment to the article specified', () => {
+        return request(app)
+          .post('/api/articles/1/comments')
+          .send({ username: 'butter_bridge', body: 'I am an angry journalist, hear me roar!' })
+          .expect(201)
+          .then(res => {
+            expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
+          });
+      });
+    });
   });
 });
+// const send405 = () => {
