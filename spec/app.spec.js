@@ -74,14 +74,8 @@ describe('/', () => {
           .send({ inc_votes: 1 })
           .expect(201)
           .then(res => {
-            expect(res.body.article).to.eql({
-              title: 'Living in the shadow of a great man',
-              topic: 'mitch',
-              author: 'butter_bridge',
-              body: 'I find this existence challenging',
-              created_at: 1542284514171,
-              votes: 101
-            });
+            expect(res.body.article.votes).to.equal(101);
+            expect(res.body.article).to.contain.keys('title', 'topic', 'author', 'body', 'created_at', 'votes');
           });
       });
     });

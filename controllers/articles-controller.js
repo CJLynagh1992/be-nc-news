@@ -16,7 +16,7 @@ exports.sendArticle = (req, res, next) => {
 };
 
 exports.updateArticleVotes = (req, res, next) => {
-  const desiredUpdateTotal = req.body;
+  const desiredUpdateTotal = req.body.inc_votes;
   const { article_id } = req.params;
   updatedVotes(article_id, desiredUpdateTotal)
     .then(article => {

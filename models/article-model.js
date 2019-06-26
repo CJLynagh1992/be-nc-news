@@ -13,25 +13,11 @@ exports.fetchArticle = article_id => {
 };
 
 exports.updatedVotes = (article_id, desiredUpdateTotal) => {
-  console.log(article_id, desiredUpdateTotal);
   return connection
-    .select('*')
+    .first('*')
     .from('articles')
     .where('article_id', '=', article_id)
-    .increment({ votes: { desiredUpdateTotal } })
-    .returning('*');
+    .increment({ votes: desiredUpdateTotal })
+    .returning('*')
+    .then(([article]) => article);
 };
-
-// exports.updateTreasure = (cost_at_auction, treasure_id) => {
-//   return (
-//     connection
-//       // .select('*')
-//       // .from('treasures')
-//       .where('treasure_id', '=', treasure_id)
-//       .into('treasures')
-//       .update('cost_at_auction', cost_at_auction)
-//       .returning('*')
-
-//       })
-//   );
-// };
