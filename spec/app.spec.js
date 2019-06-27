@@ -201,7 +201,7 @@ describe('/', () => {
           .send({ body: 'this isnt a valid property' })
           .expect(400)
           .then(res => {
-            expect(res.body.msg).to.equal('Missing property in sent object');
+            expect(res.body.msg).to.equal('You can not have a null value in a column which has a non-null contraint');
           });
       });
       it('GET for getting an array of comments for a given article_id: status code 200 and defaults to descending order of created_by when not passed a sort_by query or order query', () => {
