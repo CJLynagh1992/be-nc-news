@@ -1,6 +1,11 @@
 const articlesRouter = require('express').Router();
-const { sendArticle, updateArticleVotes, postComment, sendComments } = require('../controllers/articles-controller');
+const { sendArticle, updateArticleVotes, postComment, sendComments, sendAllArticles } = require('../controllers/articles-controller');
 const { methodNotAllowed } = require('../errors/errorhandler');
+
+articlesRouter
+  .route('/')
+  .get(sendAllArticles)
+  .all(methodNotAllowed);
 
 articlesRouter
   .route('/:article_id')

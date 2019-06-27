@@ -193,6 +193,14 @@ describe('/', () => {
             expect(res.body.comments).to.be.sortedBy('created_at', { descending: true });
           });
       });
+      xit('GET for getting an array of comments for a given article_id: status code 404 and returns an error stating that the article you are looking for does not exist', () => {
+        return request(app)
+          .get('/api/articles/489487/comments')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('No article found for article_id: 231242');
+          });
+      });
       it('GET for getting an array of comments for a given article_id: status code 200 and will default to created_by when not passed a sort_by query but sorts ascending if passed order query ascending', () => {
         return request(app)
           .get('/api/articles/1/comments?order=asc')
@@ -201,12 +209,28 @@ describe('/', () => {
             expect(res.body.comments).to.be.sortedBy('created_at', { ascending: true });
           });
       });
+      it('GET for getting an array of comments for a given article_id: status code 400 and return an error stating that the order you are passing is invalid', () => {
+        return request(app)
+          .get('/api/articles/1/comments?order=upsidedown')
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('the order you are trying to pass is invalid');
+          });
+      });
       it('GET for getting an array of comments for a given article_id: status code 200 and will sorted by passed property is valid and order descending by dafult if not passed an order', () => {
         return request(app)
           .get('/api/articles/1/comments?sort_by=comment_id')
           .expect(200)
           .then(res => {
             expect(res.body.comments).to.be.sortedBy('comment_id', { descending: true });
+          });
+      });
+      it('GET for getting an array of comments for a given article_id: status code 400 and returns an error stating that the sort_by column passed does not exist', () => {
+        return request(app)
+          .get('/api/articles/1/comments?sort_by=notValidColumn')
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('the column you are looking for does not exist');
           });
       });
       it('GET for getting an array of comments for a given article_id: status code 200 and will sorted by passed property is valid and order ascending if passed order query ascending', () => {
@@ -236,6 +260,97 @@ describe('/', () => {
             });
         });
         return Promise.all(methodPromises);
+      });
+    });
+    describe('/articles', () => {
+      it('GET for returning an array of the articles objects: status 200 and return the correct properties and by default sorts by date in descending order', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then(res => {
+            for (let i = 0; i < res.body.articles.length; i++) {
+              expect(res.body.articles[i]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+              expect(res.body.articles).to.be.sortedBy('created_at', { descending: true });
+            }
+          });
+      });
+      it('GET for returning an array of the articles objects: status 200 and return the correct properties and sorts by passed column and date in descending order by default', () => {
+        return request(app)
+          .get('/api/articles?sort_by=article_id')
+          .expect(200)
+          .then(res => {
+            for (let i = 0; i < res.body.articles.length; i++) {
+              expect(res.body.articles[i]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+              expect(res.body.articles).to.be.sortedBy('article_id', { descending: true });
+            }
+          });
+      });
+      it('GET for returning an array of the articles objects: status 200 and return the correct properties sorted by created_at if not passed a column to sort and in ascending order if passed this', () => {
+        return request(app)
+          .get('/api/articles?order=asc')
+          .expect(200)
+          .then(res => {
+            for (let i = 0; i < res.body.articles.length; i++) {
+              expect(res.body.articles[i]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+              expect(res.body.articles).to.be.sortedBy('created_at', { ascending: true });
+            }
+          });
+      });
+      it('GET for returning an array of the articles objects: status 200 and return the correct properties sorted by a passed column and in ascending order if passed this', () => {
+        return request(app)
+          .get('/api/articles?sort_by=article_id&order=asc')
+          .expect(200)
+          .then(res => {
+            for (let i = 0; i < res.body.articles.length; i++) {
+              expect(res.body.articles[i]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+              expect(res.body.articles).to.be.sortedBy('article_id', { ascending: true });
+            }
+          });
+      });
+      it('GET for returning an array of the articles objects: status 200 and return the correct properties and only the articles by that author which is passed in as a username query', () => {
+        return request(app)
+          .get('/api/articles?author=butter_bridge')
+          .expect(200)
+          .then(res => {
+            for (let i = 0; i < res.body.articles.length; i++) {
+              expect(res.body.articles[i]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+              expect(res.body.articles[i].author).to.equal('butter_bridge');
+            }
+          });
+      });
+      it('GET for returning an array of the articles objects: status 200 and return the correct properties and only the articles with the topic passed as a query', () => {
+        return request(app)
+          .get('/api/articles?topic=mitch')
+          .expect(200)
+          .then(res => {
+            for (let i = 0; i < res.body.articles.length; i++) {
+              expect(res.body.articles[i]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+              expect(res.body.articles[i].topic).to.equal('mitch');
+            }
+          });
+      });
+      it('GET for returning an array of the articles objects: status 200 and return the correct properties and only the articles by the passed author and of the passed topic', () => {
+        return request(app)
+          .get('/api/articles?author=rogersop&topic=mitch')
+          .expect(200)
+          .then(res => {
+            for (let i = 0; i < res.body.articles.length; i++) {
+              expect(res.body.articles[i]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+              expect(res.body.articles[i].topic).to.equal('mitch');
+            }
+          });
+      });
+      it('GET for returning an array of the articles objects: status 200 and return the correct properties and only the articles by the passed author and of the passed topic', () => {
+        return request(app)
+          .get('/api/articles?sort_by=article_id&order=asc&author=rogersop&topic=mitch')
+          .expect(200)
+          .then(res => {
+            for (let i = 0; i < res.body.articles.length; i++) {
+              expect(res.body.articles[i]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+              expect(res.body.articles[i].topic).to.equal('mitch');
+              expect(res.body.articles).to.be.sortedBy('article_id', { ascending: true });
+            }
+          });
       });
     });
   });

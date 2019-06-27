@@ -1,4 +1,4 @@
-const { fetchArticle, updatedVotes, addComment, fetchComments } = require('../models/article-model');
+const { fetchArticle, updatedVotes, addComment, fetchComments, fetchArticles } = require('../models/article-model');
 
 exports.sendArticle = (req, res, next) => {
   const { article_id } = req.params;
@@ -19,16 +19,17 @@ exports.updateArticleVotes = (req, res, next) => {
   const desiredUpdateTotal = req.body.inc_votes;
   const { article_id } = req.params;
   if (!desiredUpdateTotal) {
-    return Promise.reject({
+    next({
       status: 400,
       msg: 'increment value has not been given'
-    }).catch(err => next(err));
+    });
+  } else {
+    updatedVotes(article_id, desiredUpdateTotal)
+      .then(article => {
+        res.status(201).send({ article });
+      })
+      .catch(err => next(err));
   }
-  updatedVotes(article_id, desiredUpdateTotal)
-    .then(article => {
-      res.status(201).send({ article });
-    })
-    .catch(err => next(err));
 };
 
 exports.postComment = (req, res, next) => {
@@ -47,9 +48,25 @@ exports.postComment = (req, res, next) => {
 
 exports.sendComments = (req, res, next) => {
   const { article_id } = req.params;
-  fetchComments(article_id, req.query)
-    .then(comments => {
-      res.status(200).send({ comments });
+  if (req.query.order !== 'asc' && req.query.order !== 'desc' && req.query.order !== undefined) {
+    next({ status: 400, msg: 'the order you are trying to pass is invalid' });
+  } else {
+    fetchComments(article_id, req.query)
+      .then(comments => {
+        if (comments.length === 0) {
+          next({ status: 400, msg: 'No articles exist under that article ID' });
+        }
+        res.status(200).send({ comments });
+      })
+      .catch(err => next(err));
+  }
+};
+
+exports.sendAllArticles = (req, res, next) => {
+  const { sort_by, order, author, topic } = req.query;
+  fetchArticles(sort_by, order, author, topic)
+    .then(articles => {
+      res.status(200).send({ articles });
     })
     .catch(err => next(err));
 };

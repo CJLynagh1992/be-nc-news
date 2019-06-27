@@ -35,3 +35,18 @@ exports.fetchComments = (article_id, { sort_by, order }) => {
     .where('comments.article_id', '=', article_id)
     .orderBy(sort_by || 'created_at', order || 'desc');
 };
+
+exports.fetchArticles = (sort_by, order, author, topic) => {
+  return connection
+    .select('articles.*')
+    .from('articles')
+    .leftJoin('comments', 'articles.article_id', '=', 'comments.article_id')
+    .count('comments.article_id as comment_count')
+    .groupBy('articles.article_id')
+    .orderBy(sort_by || 'created_at', order || 'desc')
+    .returning('*')
+    .modify(query => {
+      if (author) query.where('articles.author', '=', author);
+      if (topic) query.where('articles.topic', '=', topic);
+    });
+};
