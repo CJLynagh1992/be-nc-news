@@ -353,5 +353,64 @@ describe('/', () => {
           });
       });
     });
+    describe('/api/comments/:comment_id', () => {
+      it('PATCH for updating votes property in comment passed: status 201 and updates the votes property using the object passed and the updated comment', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({ inc_votes: 1 })
+          .expect(201)
+          .then(res => {
+            expect(res.body.comment.votes).to.equal(17);
+          });
+      });
+      it('PATCH for updating votes property in comment passed: status 400 and returns an error stating that inccrement value not passed', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({})
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('increment value has not been given');
+          });
+      });
+      it('PATCH for updating votes property in comment passed: status 400 and returns an error ', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({ inc_votes: 'cat' })
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('the given syntax input is not valid');
+          });
+      });
+      it('GET for an invalid route: status 404 and return a message that the route has not been found', () => {
+        return request(app)
+          .get('/api/comms/2')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('Route not found');
+          });
+      });
+      it('PATCH for updating votes property in comment passed: status 200 returns the votes modified even if we pass in an extra property on the request body ', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({ inc_votes: 1, name: 'jamesMoar' })
+          .expect(201)
+          .then(res => {
+            expect(res.body.comment.votes).to.equal(17);
+            expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'body', 'created_at', 'votes');
+          });
+      });
+      it('INVALID METHOD status: 405', () => {
+        const invalidMethods = ['post', 'put', 'delete', 'get'];
+        const methodPromises = invalidMethods.map(method => {
+          return request(app)
+            [method]('/api/comments/:comments_id')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal('method not allowed');
+            });
+        });
+        return Promise.all(methodPromises);
+      });
+    });
   });
 });
