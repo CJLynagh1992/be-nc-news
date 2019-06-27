@@ -4,13 +4,13 @@ exports.fetchArticle = article_id => {
   return connection
     .first('articles.*')
     .from('articles')
-    .join('comments', 'articles.article_id', '=', 'comments.article_id')
+    .leftJoin('comments', 'articles.article_id', '=', 'comments.article_id')
     .where('articles.article_id', '=', article_id)
     .count('comments.comment_id as comment_count')
     .groupBy('articles.article_id', 'comments.article_id');
 };
 
-exports.updatedVotes = (article_id, desiredUpdateTotal) => {
+exports.updatedVotes = (article_id, desiredUpdateTotal = 0) => {
   return connection
     .first('*')
     .from('articles')
@@ -48,5 +48,16 @@ exports.fetchArticles = (sort_by, order, author, topic) => {
     .modify(query => {
       if (author) query.where('articles.author', '=', author);
       if (topic) query.where('articles.topic', '=', topic);
+    });
+};
+
+exports.checkExists = (value, table, column) => {
+  return connection
+    .select('*')
+    .from(table)
+    .where(column, value)
+    .then(rows => {
+      if (rows.length === 0) return false;
+      else return true;
     });
 };

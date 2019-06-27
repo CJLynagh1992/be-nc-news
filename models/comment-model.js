@@ -1,6 +1,6 @@
 const connection = require('../db/connection');
 
-exports.updatedCommentVotes = (comment_id, desiredUpdateTotal) => {
+exports.updatedCommentVotes = (comment_id, desiredUpdateTotal = 0) => {
   return connection
     .first('*')
     .from('comments')

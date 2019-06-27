@@ -120,7 +120,7 @@ describe('/', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: 1 })
-          .expect(201)
+          .expect(200)
           .then(res => {
             expect(res.body.article.votes).to.equal(101);
             expect(res.body.article).to.contain.keys('title', 'topic', 'author', 'body', 'created_at', 'votes');
@@ -130,9 +130,10 @@ describe('/', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({})
-          .expect(400)
+          .expect(200)
           .then(res => {
-            expect(res.body.msg).to.equal('increment value has not been given');
+            expect(res.body.article.votes).to.equal(100);
+            expect(res.body.article).to.contain.keys('title', 'topic', 'author', 'body', 'created_at', 'votes');
           });
       });
       it('PATCH for updating votes property in article passed: status 400 and returns an error ', () => {
@@ -156,7 +157,7 @@ describe('/', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: 1, name: 'mitch' })
-          .expect(201)
+          .expect(200)
           .then(res => {
             expect(res.body.article.votes).to.equal(101);
             expect(res.body.article).to.contain.keys('title', 'topic', 'author', 'body', 'created_at', 'votes');
@@ -207,7 +208,7 @@ describe('/', () => {
           .get('/api/articles/489487/comments')
           .expect(404)
           .then(res => {
-            expect(res.body.msg).to.equal('No article found for article_id: 489487');
+            expect(res.body.msg).to.equal('The article passed does not exist');
           });
       });
       it('GET for getting an array of comments for a given article_id: status code 200 and will default to created_by when not passed a sort_by query but sorts ascending if passed order query ascending', () => {
@@ -361,13 +362,29 @@ describe('/', () => {
             }
           });
       });
+      it('GET for returning an array of the articles objects: status 404 when provided with a non existant author as a query', () => {
+        return request(app)
+          .get('/api/articles?sort_by=article_id&order=asc&author=jamesmoar&topic=mitch')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('the passed author does not exist');
+          });
+      });
+      it('GET for returning an array of the articles objects: status 404 when provided with a non existant topic as a query', () => {
+        return request(app)
+          .get('/api/articles?sort_by=article_id&order=asc&author=rogersop&topic=planes')
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('the passed topic does not exist');
+          });
+      });
     });
     describe('/api/comments/:comment_id', () => {
       it('PATCH for updating votes property in comment passed: status 201 and updates the votes property using the object passed and the updated comment', () => {
         return request(app)
           .patch('/api/comments/1')
           .send({ inc_votes: 1 })
-          .expect(201)
+          .expect(200)
           .then(res => {
             expect(res.body.comment.votes).to.equal(17);
           });
@@ -376,9 +393,9 @@ describe('/', () => {
         return request(app)
           .patch('/api/comments/1')
           .send({})
-          .expect(400)
+          .expect(200)
           .then(res => {
-            expect(res.body.msg).to.equal('increment value has not been given');
+            expect(res.body.comment.votes).to.equal(16);
           });
       });
       it('PATCH for updating votes property in comment passed: status 400 and returns an error ', () => {
@@ -402,7 +419,7 @@ describe('/', () => {
         return request(app)
           .patch('/api/comments/1')
           .send({ inc_votes: 1, name: 'jamesMoar' })
-          .expect(201)
+          .expect(200)
           .then(res => {
             expect(res.body.comment.votes).to.equal(17);
             expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'body', 'created_at', 'votes');
