@@ -105,7 +105,7 @@ describe('/', () => {
           .get(`/api/articles/2354975394753409571242`)
           .expect(400)
           .then(res => {
-            expect(res.body.msg).to.equal('The article_id is out of range');
+            expect(res.body.msg).to.equal('The id being passed is out of range');
           });
       });
       it('GET for an invalid article_id: status 400 and an error message', () => {
@@ -400,7 +400,7 @@ describe('/', () => {
           });
       });
       it('INVALID METHOD status: 405', () => {
-        const invalidMethods = ['post', 'put', 'delete', 'get'];
+        const invalidMethods = ['post', 'put', 'get'];
         const methodPromises = invalidMethods.map(method => {
           return request(app)
             [method]('/api/comments/:comments_id')
@@ -410,6 +410,29 @@ describe('/', () => {
             });
         });
         return Promise.all(methodPromises);
+      });
+    });
+    describe('/api/comments/comment:id', () => {
+      it('DELETE the relevant comment by ID passed in: Status 204 and will return a message stating that comment has successfully been deleted', () => {
+        return request(app)
+          .delete('/api/comments/1')
+          .expect(204);
+      });
+      it('DELETE for an non-existant comment_id: status 404 and an error message stating no comment has been found by that comment_id', () => {
+        return request(app)
+          .delete(`/api/comments/231242`)
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('No comment found for comment_id: 231242');
+          });
+      });
+      it('DELETE for an non-existant comment_id: status 400 and an error message stating that the comment_id passed is out of range', () => {
+        return request(app)
+          .delete(`/api/comments/231243985759873589738972`)
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('The id being passed is out of range');
+          });
       });
     });
   });
