@@ -195,6 +195,15 @@ describe('/', () => {
             expect(res.body.msg).to.equal('No user found for that username');
           });
       });
+      it('POST for adding a new comment to a specific article: status code 400 and a bad request error when passed an object without all required properties', () => {
+        return request(app)
+          .post('/api/articles/1/comments')
+          .send({ body: 'this isnt a valid property' })
+          .expect(400)
+          .then(res => {
+            expect(res.body.msg).to.equal('Missing property in sent object');
+          });
+      });
       it('GET for getting an array of comments for a given article_id: status code 200 and defaults to descending order of created_by when not passed a sort_by query or order query', () => {
         return request(app)
           .get('/api/articles/1/comments')
@@ -240,7 +249,7 @@ describe('/', () => {
           .get('/api/articles/1/comments?sort_by=notValidColumn')
           .expect(400)
           .then(res => {
-            expect(res.body.msg).to.equal('the column you are looking for does not exist');
+            expect(res.body.msg).to.equal('The column you are looking for does not exist');
           });
       });
       it('GET for getting an array of comments for a given article_id: status code 200 and will sorted by passed property is valid and order ascending if passed order query ascending', () => {
@@ -387,6 +396,15 @@ describe('/', () => {
           .expect(200)
           .then(res => {
             expect(res.body.comment.votes).to.equal(17);
+          });
+      });
+      it('PATCH for updating votes property in comment passed: status 404 and an error stating that the commend_id does not exist', () => {
+        return request(app)
+          .patch('/api/comments/10000')
+          .send({ inc_votes: 1 })
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('The comment_id passed does not exist');
           });
       });
       it('PATCH for updating votes property in comment passed: status 400 and returns an error stating that inccrement value not passed', () => {

@@ -1,4 +1,5 @@
 const { updatedCommentVotes, deleteComment } = require('../models/comment-model');
+const { checkExists } = require('../models/article-model');
 
 exports.updateCommentVotes = (req, res, next) => {
   const desiredUpdateTotal = req.body.inc_votes;
@@ -6,9 +7,18 @@ exports.updateCommentVotes = (req, res, next) => {
 
   updatedCommentVotes(comment_id, desiredUpdateTotal)
     .then(comment => {
-      res.status(200).send({ comment });
+      const commentExists = comment_id ? checkExists(comment_id, 'comments', 'comment_id') : null;
+      return Promise.all([commentExists, comment]);
     })
-    .catch(err => next(err));
+    .then(([commentExists, comment]) => {
+      if (commentExists === false)
+        return Promise.reject({
+          status: 404,
+          msg: 'The comment_id passed does not exist'
+        });
+      else res.status(200).send({ comment });
+    })
+    .catch(next);
 };
 
 exports.removeComment = (req, res, next) => {

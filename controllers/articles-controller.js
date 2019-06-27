@@ -34,6 +34,11 @@ exports.postComment = (req, res, next) => {
   newComment.article_id = article_id;
   addComment(newComment)
     .then(comment => {
+      if (!newComment.author || !newComment.body)
+        return Promise.reject({
+          status: 400,
+          msg: 'Missing property in sent object'
+        });
       res.status(201).send({ comment });
     })
     .catch(err => next(err));
