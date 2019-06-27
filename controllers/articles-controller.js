@@ -53,10 +53,19 @@ exports.sendComments = (req, res, next) => {
   } else {
     fetchComments(article_id, req.query)
       .then(comments => {
-        if (comments.length === 0) {
-          next({ status: 400, msg: 'No articles exist under that article ID' });
+        if (!comments.length) {
+          return fetchArticle(article_id);
+        } else {
+          res.status(200).send({ comments });
         }
-        res.status(200).send({ comments });
+      })
+      .then(article => {
+        if (!article) {
+          return Promise.reject({
+            status: 404,
+            msg: `No article found for article_id: ${article_id}`
+          });
+        } else res.status(200).send({ comment: [] });
       })
       .catch(err => next(err));
   }

@@ -53,7 +53,7 @@ describe('/', () => {
             expect(res.body.user).to.contain.keys('username', 'avatar_url', 'name');
           });
       });
-      it('GET for an non-existant username: status 400 and an error message stating no user has been found by that username', () => {
+      it('GET for an non-existant username: status 404 and an error message stating no user has been found by that username', () => {
         return request(app)
           .get('/api/users/not-Valid-Username')
           .expect(404)
@@ -146,7 +146,7 @@ describe('/', () => {
       });
       it('GET for an invalid route: status 404 and return a message that the route has not been found', () => {
         return request(app)
-          .get('/api/article/2')
+          .get('/api/art/2')
           .expect(404)
           .then(res => {
             expect(res.body.msg).to.equal('Route not found');
@@ -185,6 +185,15 @@ describe('/', () => {
             expect(res.body.comment).to.contain.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
           });
       });
+      it('POST for adding a new comment to a specific article: status code 400 and returns an error stating that no user has been found by that username', () => {
+        return request(app)
+          .post('/api/articles/1/comments')
+          .send({ username: 'butterbean', body: 'I am a fake user!' })
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal('No user found for that username');
+          });
+      });
       it('GET for getting an array of comments for a given article_id: status code 200 and defaults to descending order of created_by when not passed a sort_by query or order query', () => {
         return request(app)
           .get('/api/articles/1/comments')
@@ -193,12 +202,12 @@ describe('/', () => {
             expect(res.body.comments).to.be.sortedBy('created_at', { descending: true });
           });
       });
-      xit('GET for getting an array of comments for a given article_id: status code 404 and returns an error stating that the article you are looking for does not exist', () => {
+      it('GET for getting an array of comments for a given article_id: status code 404 and returns an error stating that the article you are looking for does not exist', () => {
         return request(app)
           .get('/api/articles/489487/comments')
           .expect(404)
           .then(res => {
-            expect(res.body.msg).to.equal('No article found for article_id: 231242');
+            expect(res.body.msg).to.equal('No article found for article_id: 489487');
           });
       });
       it('GET for getting an array of comments for a given article_id: status code 200 and will default to created_by when not passed a sort_by query but sorts ascending if passed order query ascending', () => {
