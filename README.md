@@ -1,4 +1,4 @@
-# NC-News
+# NC-News https://img.shields.io/badge/NC-NewsBackEnd-yellow.svg
 
 This project was to build the API that I will be using when I moveonto the Front End block of the Northcoders course. The database will store articles, users, topics and comments which are made available through various endpoints.
 
@@ -23,7 +23,7 @@ I also used these as dependencies in the project:
 - mocha: 6.1.4
 - supertest: 4.0.2
 
-### Installing
+### Installing :vertical_traffic_light:
 
 1. Clone this repository into the correct files on local system
 
