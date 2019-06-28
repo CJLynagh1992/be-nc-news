@@ -4,7 +4,7 @@ const articlesRouter = require('./articles-router');
 const usersRouter = require('./users-router');
 const commentsRouter = require('./comments-router');
 const { methodNotAllowed } = require('../errors/errorhandler');
-const { endpoints } = require('../endpoints.json');
+const endpoints = require('../endpoints.json');
 
 apiRouter.use('/topics', topicsRouter);
 
