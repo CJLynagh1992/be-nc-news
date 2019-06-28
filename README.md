@@ -1,4 +1,4 @@
-# NC-News https://img.shields.io/badge/NC-NewsBackEnd-yellow.svg
+# NC-News https://img.shields.io/badge/<NC-News>-<BackEnd>-<yellow>.svg
 
 This project was to build the API that I will be using when I moveonto the Front End block of the Northcoders course. The database will store articles, users, topics and comments which are made available through various endpoints.
 
